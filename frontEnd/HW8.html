@@ -1,0 +1,282 @@
+<!Doctype html>
+<html>
+  <head>
+    <title>FB Search</title>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <link rel='stylesheet' href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link type='text/css' rel='stylesheet' href="css/HW8.css"/>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type='text/javascript' src="js/HW8.js"></script>
+  </head>
+
+  <body ng-app='myApp'>
+    <div class='container-fluid' ng-controller='findresult'>
+      <div class='page-header'>
+        <form id="fb-search" name='facebook' ng-keyup="enterEvent($event)">
+        <div class='form-group'>
+          <div class='row'>
+          <div class='col-md-4 col-sm-4 col-xs-4'>
+            <label id='facebooksearch' for='fbsearch' ng-click='clearpage()'>FB Search</label>
+          </div>
+          <div class="col-md-8 col-sm-8 col-xs-8" >
+            <div class='input-group col-md-6 col-sm-8 col-xs-8'>
+              <input type='text' class='form-control ' id='fbsearch' placeholder='type something...'/ ng-model='keyin["val"]' required/>
+              <span class="input-group-btn">
+                <button id='startsearch' type='button' class='btn btn-primary' ng-click='submitsearch()'>
+                  <span class='glyphicon glyphicon-search'></span>
+                </button>
+                <button type='button' class='btn btn-default' id='clear' ng-click='clearpage()'>
+                   Clear
+                </button>
+            </span>
+            </div>
+          </div>
+        </div>
+      </div>
+     </form>
+      </div>
+      <div class='fb-search-wrapper' ng-show=(showtable)>
+        <nav class='nav nav-tabs nav-justified'>
+        <ul id='search-navbar' class='nav nav-tabs'>
+          <div class='search-nav-div col-md-2 col-sm-2 col-xs-12'><a class='search-anchor' data-toggle='tab' href='#user'><li  id='usertab' class='search-nav'>Users</li></a></div>
+          <div class='search-nav-div col-md-2 col-sm-2 col-xs-12'><a class='search-anchor' data-toggle='tab' href='#page'><li  id='pagetab' class='search-nav'>Pages</li></a></div>
+          <div class='search-nav-div col-md-2 col-sm-2 col-xs-12'><a class='search-anchor' data-toggle='tab' href='#event'><li id='eventtab'class='search-nav'>Events</li></a></div>
+          <div class='search-nav-div col-md-2 col-sm-2 col-xs-12'><a class='search-anchor' data-toggle='tab' href='#place'><li id='placetab'class='search-nav'>Places</li></a></div>
+          <div class='search-nav-div col-md-2 col-sm-2 col-xs-12'><a class='search-anchor' data-toggle='tab' href='#group'><li id='grouptab'class='search-nav'>Groups</li></a></div>
+          <div class='search-nav-div col-md-2 col-sm-2 col-xs-12'><a class='search-anchor' data-toggle='tab' href='#favorite'><li id='favoritetab' class='search-nav'>Favorites</li></a></div>
+        </ul>
+        </nav>
+      </div>
+      <div class='content-fluid' id='resulttable'>
+      <div class='tab-content' ng-show=(showtable)>
+        <div id='user' class='tab-pane fade'>
+          <table class='table table-hover'>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Profile photo</th>
+                <th>Name</th>
+                <th>Favorite</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="user in users['current']">
+                <td>{{$index+1}}</td>
+                <td><a target="_blank" href="{{user.picture.data.url}}"><img class='img-circle'src="{{user.picture.data.url}}" height="30" width="40"/></a></td>
+                <td>{{user.name}}</td>
+                <td><button type='button' class='btn btn-default' id='user{{$index+1}}' ng-click='markfavorite("user",$index+1)'><span class="{{favorite.user[$index]}}"></span></button></td>
+                <td><button type='button' class='btn btn-default' ng-click='detailinfo((user.id),(user.name),(user.picture.data.url),"user")'><span class="glyphicon glyphicon-chevron-right"></span></button></td>
+              </tr>
+            </tbody>
+          </table>
+		  <div>
+            <button type='button' class='btn btn-default pull-left pageprev'  id='userpageprevious' ng-click='gotoprev("user")' ng-show=(hasPrev.user)>Previous</button>
+            <button type='button' class='btn btn-default pull-right pagenext' id='userpagenext'     ng-click='gotonext("user")' ng-show=(hasNext.user)>Next</button>
+          </div>
+        </div>
+        <div id='page' class='tab-pane fade'>
+          <table class='table table-hover'>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Profile photo</th>
+                <th>Name</th>
+                <th>Favorite</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="page in pages['current']">
+                <td>{{$index+1}}</td>
+                <td><a target="_blank" href="{{page.picture.data.url}}"><img class='img-circle'src="{{page.picture.data.url}}" height="30" width="40"/></a></td>
+                <td>{{page.name}}</td>
+                <td><button type='button' class='btn btn-default' id='page{{$index+1}}' ng-click='markfavorite("page",$index+1)'><span class="{{favorite.page[$index]}}"></span></button></td>
+                <td><button type='button' class='btn btn-default'ng-click='detailinfo((page.id),(page.name),(page.picture.data.url),"page")'><span class="glyphicon glyphicon-chevron-right"></span></button></td>
+              </tr>
+            </tbody>
+          </table>
+		  
+          <div>
+            <button type='button' class='btn btn-default pull-left pageprev' id='pagepageprevious' ng-click='gotoprev("page")'ng-show=(hasPrev.page)>Previous</button>
+            <button type='button' class='btn btn-default pull-right pagenext' id='pagepagenext'    ng-click='gotonext("page")'ng-show=(hasNext.page)>Next</button>
+          </div>
+        </div>
+        <div id='event' class='tab-pane fade'>
+          <table class='table table-hover'>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Profile photo</th>
+                <th>Name</th>
+                <th>Favorite</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="event in events['current']">
+                <td>{{$index+1}}</td>
+                <td><a target="_blank" href="{{event.picture.data.url}}"><img class='img-circle'src="{{event.picture.data.url}}" height="30" width="40"/></a></td>
+                <td>{{event.name}}</td>
+                <td><button type='button' class='btn btn-default'id='event{{$index+1}}' ng-click='markfavorite("event",$index+1)'><span class="{{favorite.event[$index]}}"></span></button></td>
+                <td><button type='button' class='btn btn-default'ng-click='detailinfo((event.id),(event.name),(event.picture.data.url),"event")'><span class="glyphicon glyphicon-chevron-right"></span></button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div>
+            <button type='button' class='btn btn-default pull-left pageprev'  id='eventpageprevious' ng-click='gotoprev("event")'ng-show=(hasPrev.event)>Previous</button>
+            <button type='button' class='btn btn-default pull-right pagenext' id='eventpagenext'     ng-click='gotonext("event")'ng-show=(hasNext.event)>Next</button>
+          </div>
+        </div>
+        <div id='place' class='tab-pane fade'>
+          <table class='table table-hover'>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Profile photo</th>
+                <th>Name</th>
+                <th>Favorite</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="place in places['current']">
+                <td>{{$index+1}}</td>
+                <td><a target="_blank" href="{{place.picture.data.url}}"><img class='img-circle'src="{{place.picture.data.url}}" height="30" width="40"/></a></td>
+                <td>{{place.name}}</td>
+                <td><button type='button' class='btn btn-default' id='place{{$index+1}}' ng-click='markfavorite("place",$index+1)'><span class="{{favorite.place[$index]}}"></span></button></td>
+                <td><button type='button' class='btn btn-default'ng-click='detailinfo((place.id),(place.name),(place.picture.data.url),"place")'><span class="glyphicon glyphicon-chevron-right"></span></button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div>
+             <button type='button' class='btn btn-default pull-left pageprev' id='placepageprevious' ng-click='gotoprev("place")'ng-show=(hasPrev.place)>Previous</button>
+             <button type='button' class='btn btn-default pull-right pagenext' id='placepagenext'    ng-click='gotonext("place")'ng-show=(hasNext.place)>Next</button>
+          </div>
+        </div>
+        <div id='group' class='tab-pane fade'>
+          <table class='table table-hover'>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Profile photo</th>
+                <th>Name</th>
+                <th>Favorite</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="group in groups['current']">
+                <td>{{$index+1}}</td>
+                <td><a target="_blank" href="{{group.picture.data.url}}"><img class='img-circle'src="{{group.picture.data.url}}" height="30" width="40"/></a></td>
+                <td>{{group.name}}</td>
+                <td><button type='button' class='btn btn-default'id='group{{$index+1}}' ng-click='markfavorite("group",$index+1)'><span class="{{favorite.group[$index]}}"></span></button></td>
+                <td><button type='button' class='btn btn-default'ng-click='detailinfo((group.id),(group.name),(group.picture.data.url),"group")'><span class="glyphicon glyphicon-chevron-right"></span></button></td>
+              </tr>
+            </tbody>
+          </table>
+		   <div>
+               <button type='button' class='btn btn-default pull-left pageprev' id='grouppageprevious' ng-click='gotoprev("group")'ng-show=(hasPrev.group)>Previous</button>
+               <button type='button' class='btn btn-default pull-right pagenext' id='grouppagenext'    ng-click='gotonext("group")'ng-show=(hasNext.group)>Next</button>
+           </div>
+        </div>
+        <div id='favorite' class='tab-pane fade'>
+          <table class='table table-hover'>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Profile photo</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Favorite</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="item in favoriteList">
+                <td>{{$index+1}}</td>
+                <td><a target="_blank" href="{{item.url}}"><img class='img-circle'src="{{item.url}}" height="30" width="40"/></a></td>
+                <td>{{item.name}}</td>
+                <td>{{item.type}}</td>
+                <td><button type='button' class='btn btn-default'ng-click='removeFromFav((item.id))'><span class="glyphicon glyphicon-trash"></span></button></td>
+                <td><button type='button' class='btn btn-default'ng-click='detailinfo((item.id),(item.name),(item.url),(item.type))'><span class="glyphicon glyphicon-chevron-right"></span></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div>
+      <div class='container-fluid' id='detailpage'>
+      <div id='details' ng-show=(!showtable)>
+        <div id = 'buttonlist'>
+          <button type='button' id='detailback'     class='btn btn-default pull-left'ng-click='returntohome()'><span class="glyphicon glyphicon-chevron-left">Back</span></button>
+          <button type='button' id='detailpost'     class='btn btn-default pull-right' ng-click='postToFB((info.name),(info.profile))'><img src='http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png' height="25em" width="25em"/></button>
+          <button type='button' id='detailfavorite' class='btn btn-default pull-right' ng-click='changeFav()'><span class="{{detailfav}}"></span></button>
+        </div>
+        <div id='albums' class='panel panel-default'>
+          <div class='panel-heading'>Albums</div>
+          <div class='panel-body'>
+            <div class='panel-group' id='albumgroup'>
+              <div class='panel panel-default' ng-repeat="album in albums" ng-show="(!isprocessingdetail)">
+                <div class='panel-heading'>
+                  <h4 class="panel-title">
+				            <a data-toggle="collapse" data-parent="#albumgroup" href="#album{{$index+1}}">{{album.name}}</a>
+                  </h4>
+                </div>
+                <div id="album{{$index+1}}" class="panel-collapse collapse {{$index == 0?' in':''}}" ng-show="(album.hasphotos)">
+                  <div class="panel-body">
+                    <div class='an-image' ng-repeat='photo in album.photos.data'>
+                      <img class='img-rounded' src="https://graph.facebook.com/v2.8/{{photo.id}}/picture?access_token=EAAC6vcfHGaEBAOZAZAXsoZBdHMJe7SU6s2qpKV2QmpZCTZAH9r1e2drz59ItUclvXpsDk9ySwgIhJAx3dS51qIWzypZA7C9Tq7vhFutdofJfS6JzGYZALQOFJUULq7B4ZAOBI0MJn49PpXPvjn8OoznPSmidZCRq3l2IlMOFxc55ZBygZDZD" width="100%"/>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class='one-post' ng-show="(!hasalbums)">
+              <pre class='postmsg notfound'>No Album has been found!</pre>
+            </div>
+
+            <div class="progress" id ='progressbar-album'ng-show="(isprocessingdetail)">
+              <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
+            </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div id='posts'>
+          <div id='album-post-header'>Posts</div>
+          <div id='album-body'>
+            <div class='one-post' ng-repeat='post in posts' ng-show="(post.hasmessage)">
+              <div class='postheader'>
+                <div class='postprofile'><img src="{{info.profile}}" height="40em" width="40em"></div>
+                <div class='postnimandtime'>
+                  <div class='postname'>{{info.name}}</div>
+                  <div class='posttime'>{{post.created_time}}</div>
+                </div>
+              </div>
+                <pre class='postmsg'>{{post.message}}</pre>
+            </div>
+            <div class='one-post' ng-show="(!hasposts)">
+              <pre class='postmsg notfound'>No Post has been found!</pre>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+      <div class="progress" id ='progressbar'ng-show="(isprocessing)">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:70%">
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
